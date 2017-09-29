@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "Pulling dependencies"
+docker login ARTIFACTORY_DOCKER_REPO -u ARTIFACTORY_USER -p ACCESS_TOKEN
+docker pull ARTIFACTORY_DOCKER_REPO/my-app-image:STATIC_TAG

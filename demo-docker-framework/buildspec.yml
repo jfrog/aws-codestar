@@ -1,0 +1,45 @@
+version: 0.2
+env:
+  parameter-store:
+    ARTIFACTORY_API_KEY: "ARTIFACTORY_CREDENTIALS"
+phases:
+  install:
+    commands:
+      - echo Entering install phase...
+      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://0.0.0.0:2375 --storage-driver=vfs&
+      - timeout -t 15 sh -c "until docker info; do echo .; sleep 1; done"
+      - apk add --no-cache --update openssl curl jq 
+  pre_build:
+    commands:
+      - echo Entering pre_build phase...
+      - export RESPONSE=$(curl -H "X-JFrog-Art-Api:$ARTIFACTORY_API_KEY" -XPOST "$ARTIFACTORY_URL/api/security/token" -d "username=$ARTIFACTORY_USER" -d "scope=member-of-groups:readers" -d "expires_in=600")
+      - export ACCESS_TOKEN=$(echo "$RESPONSE"| jq -r .access_token)
+      - docker login -u $ARTIFACTORY_USER -p $ACCESS_TOKEN $ARTIFACTORY_DOCKER_REPO
+  build:
+    commands:
+      - echo Entering build phase...
+      - echo Build started on `date` and CODEBUILD_BUILD_ID is $CODEBUILD_BUILD_ID
+      - curl -O -H "X-JFrog-Art-Api:$ARTIFACTORY_API_KEY" $ARTIFACTORY_URL/$ARTIFACTORY_MVN_REPO/$WEB_APPLICATION_PATH$WEB_APPLICATION_NAME
+      - docker build -t $ARTIFACTORY_DOCKER_REPO/my-app-image:$IMAGE_TAG --no-cache --build-arg WEB_APPLICATION_NAME=$WEB_APPLICATION_NAME .
+      - echo Tagging docker image with static tag $(echo $CODEBUILD_BUILD_ID | sed 's/:/-/')
+      - docker tag $ARTIFACTORY_DOCKER_REPO/my-app-image:$IMAGE_TAG $ARTIFACTORY_DOCKER_REPO/my-app-image:$(echo $CODEBUILD_BUILD_ID | sed 's/:/-/')
+  post_build:
+    commands:
+      - echo Entering post_build phase...
+      - echo Build completed on `date`
+      - export STATIC_TAG=$(echo $CODEBUILD_BUILD_ID | sed 's/:/-/')
+      - docker push $ARTIFACTORY_DOCKER_REPO/my-app-image:$IMAGE_TAG
+      - docker push $ARTIFACTORY_DOCKER_REPO/my-app-image:$STATIC_TAG
+      - sed -i -e "s|STATIC_TAG|$STATIC_TAG|g" scripts/start_server
+      - sed -i -e "s|STATIC_TAG|$STATIC_TAG|g" scripts/install_dependencies
+      - sed -i -e "s|ACCESS_TOKEN|$ACCESS_TOKEN|g" scripts/install_dependencies
+      - sed -i -e "s|ARTIFACTORY_USER|$ARTIFACTORY_USER|g" scripts/install_dependencies
+      - sed -i -e "s|ARTIFACTORY_DOCKER_REPO|$ARTIFACTORY_DOCKER_REPO|g" scripts/install_dependencies
+artifacts:
+  type: zip
+  files:
+    - 'appspec.yml'
+    - 'scripts/start_server'
+    - 'scripts/install_dependencies'
+    - 'scripts/stop_server'
+

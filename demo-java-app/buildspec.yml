@@ -1,0 +1,38 @@
+version: 0.2
+env:
+  parameter-store:
+    ARTIFACTORY_API_KEY: "ARTIFACTORY_CREDENTIALS"
+phases:
+  install:
+    commands:
+      - echo Entering install phase...
+      - wget https://jcenter.bintray.com/org/apache/maven/apache-maven/3.3.9/apache-maven-3.3.9-bin.tar.gz 
+      - tar xzvf apache-maven-3.3.9-bin.tar.gz -C /opt/
+      - export PATH=/opt/apache-maven-3.3.9/bin:$PATH
+      - wget https://dl.bintray.com/jfrog/jfrog-cli-go/1.10.1/jfrog-cli-linux-amd64/jfrog
+      - chmod +x jfrog
+  pre_build:
+    commands:
+      - echo Entering pre_build phase...
+      - ./jfrog rt config --url $ARTIFACTORY_URL --user $ARTIFACTORY_USER --apikey $ARTIFACTORY_API_KEY
+      - sed -i -e 's|ARTIFACTORY_USER|${ARTIFACTORY_USER}|g' settings.xml && sed -i -e 's|ARTIFACTORY_PASSWORD|${ARTIFACTORY_API_KEY}|g' settings.xml && sed -i -e 's|ARTIFACTORY_MVN_REPO|${ARTIFACTORY_MVN_REPO}|g' settings.xml
+  build:
+    commands:
+      - echo Entering build phase...
+      - echo Build started on `date`
+      - mvn -s settings.xml -f pom.xml compile
+      - mvn -s settings.xml -f pom.xml package
+  post_build:
+    commands:
+      - echo Entering post_build phase...
+      - echo Build completed on `date`i
+      - ./jfrog rt u "*.war" generic-local --build-name=codestar-demo-java-app --build-number=$CODEBUILD_BUILD_ID --flat=false
+      - ./jfrog rt bce codestar-demo-java-app $CODEBUILD_BUILD_ID
+      - ./jfrog rt bp codestar-demo-java-app $CODEBUILD_BUILD_ID
+artifacts:
+  type: zip
+  files:
+    - 'appspec.yml'
+    - 'scripts/start_server'
+    - 'scripts/install_dependencies'
+    - 'target/ROOT.war'

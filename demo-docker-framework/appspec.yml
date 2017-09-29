@@ -1,0 +1,17 @@
+version: 0.0
+os: linux
+files:
+  - source: / 
+    destination: /home/ec2-user/javaapp
+hooks:
+  AfterInstall:
+    - location: scripts/stop_server
+      timeout: 300
+      runas: root
+    - location: scripts/install_dependencies
+      timeout: 300
+      runas: root
+  ApplicationStart:
+    - location: scripts/start_server
+      timeout: 300
+      runas: root

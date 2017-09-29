@@ -1,0 +1,3 @@
+#!/bin/bash
+echo "Stopping and removing the running container"
+docker stop my-app-image || true && docker rm -f my-app-image || true
