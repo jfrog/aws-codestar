@@ -33,4 +33,4 @@ How to integrate with Artifactory?
 
 * The dockerized builder agent can also be pulled from Artifactory or Bintray (AWSCodeStar->$PROJECT->CodeBuild->Edit Project->Build Environment). Note that CodeBuild doesn't allow a mechanism to authenticate with external docker repositories to download the dockerized builder agent. Once a mechanism is available, public repositories should be used.
 
-* Create a ParameterStore resource (SecureString). In this sample, this resource is named as *ARTIFACTORY_CREDENTIALS*. In addition, to access this resource, the role policy needs to be added under the CodeBuild service role. Additional information is located [here](https://github.com/JFrogDev/soldev/tree/master/AWSCodeStar#note) 
+* Create a ParameterStore resource (SecureString). In this sample, this resource is named as *ARTIFACTORY_CREDENTIALS*. In addition, to access this resource, the role policy needs to be added under the CodeBuild service role. Additional information is located [here](https://github.com/JFrogDev/aws-codestar/tree/master/#note) 
