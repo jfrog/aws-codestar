@@ -31,6 +31,7 @@ phases:
       - docker push $ARTIFACTORY_DOCKER_REPO/my-app-image:$IMAGE_TAG
       - docker push $ARTIFACTORY_DOCKER_REPO/my-app-image:$STATIC_TAG
       - sed -i -e "s|STATIC_TAG|$STATIC_TAG|g" scripts/start_server
+      - sed -i -e "s|ARTIFACTORY_DOCKER_REPO|$ARTIFACTORY_DOCKER_REPO|g" scripts/start_server
       - sed -i -e "s|STATIC_TAG|$STATIC_TAG|g" scripts/install_dependencies
       - sed -i -e "s|ACCESS_TOKEN|$ACCESS_TOKEN|g" scripts/install_dependencies
       - sed -i -e "s|ARTIFACTORY_USER|$ARTIFACTORY_USER|g" scripts/install_dependencies

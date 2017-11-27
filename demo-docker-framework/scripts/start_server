@@ -1,2 +1,2 @@
 #!/bin/bash
-docker run --name my-app-image -dp 80:8080 jfrogtraining-docker-dev.jfrog.io/my-app-image:STATIC_TAG
+docker run --name my-app-image -dp 80:8080 ARTIFACTORY_DOCKER_REPO/my-app-image:STATIC_TAG
