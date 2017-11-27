@@ -9,7 +9,7 @@ phases:
       - wget https://jcenter.bintray.com/org/apache/maven/apache-maven/3.3.9/apache-maven-3.3.9-bin.tar.gz 
       - tar xzvf apache-maven-3.3.9-bin.tar.gz -C /opt/
       - export PATH=/opt/apache-maven-3.3.9/bin:$PATH
-      - wget https://dl.bintray.com/jfrog/jfrog-cli-go/1.10.1/jfrog-cli-linux-amd64/jfrog
+      - wget https://dl.bintray.com/jfrog/jfrog-cli-go/1.12.1/jfrog-cli-linux-amd64/jfrog
       - chmod +x jfrog
   pre_build:
     commands:
