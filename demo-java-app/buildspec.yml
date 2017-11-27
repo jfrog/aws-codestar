@@ -26,7 +26,7 @@ phases:
     commands:
       - echo Entering post_build phase...
       - echo Build completed on `date`i
-      - ./jfrog rt u "*.war" generic-local --build-name=codestar-demo-java-app --build-number=$CODEBUILD_BUILD_ID --flat=false
+      - ./jfrog rt u "*.war" libs-release-local --build-name=codestar-demo-java-app --build-number=$CODEBUILD_BUILD_ID --flat=false
       - ./jfrog rt bce codestar-demo-java-app $CODEBUILD_BUILD_ID
       - ./jfrog rt bp codestar-demo-java-app $CODEBUILD_BUILD_ID
 artifacts:
